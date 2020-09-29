@@ -1,0 +1,57 @@
+server:
+  port: 8082
+
+spring:
+
+  rabbitmq:
+    host: localhost
+    port: 5672
+    username: guest
+    password: guest
+
+  cloud:
+    stream:
+      bindings:
+
+        customer-input:
+          destination: ex.customer
+          group: qe.customer
+          consumer:
+            maxAttempts: 1
+
+
+        customer-retrie:
+          destination: ex.customer.retrie
+          group: rt.customer
+
+          consumer:
+            # Numero de retentativas de reprocessamento da mensagem
+            maxAttempts: 3
+            # Intervalo de tempo em ms para a primeira tentativa
+            backOffInitialInterval: 2000
+            # Fator de multiplicacao do intervalo de tempo para as retentativas
+            backOffMultiplier: 2
+            # Intervalo maximo de tempo em ms para as retentativas
+            backOffMaxInterval: 20000
+            # Retentar(true por padrao) mesmo se ocorrer uma excecao que não esteja listada em retryableException
+            defaultRetryable: false
+            # Lista da excecoes que podem gerar retentativas
+            retryableExceptions:
+              java.lang.RuntimeException: true
+              java.lang.IllegalStateException: true
+
+      rabbit:
+        bindings:
+          customer-input:
+            consumer:
+              # Após a primeira falha envia para a fila de retentativas
+              deadLetterQueueName: ex.customer.retrie.rt.customer
+              # Nome da exchange que vai recever essa mensagem
+              deadLetterExchange: ex.customer.retrie
+
+
+          customer-retrie:
+            consumer:
+              deadLetterQueueName: ex.customer.dlq.dlq.customer
+              deadLetterExchange: ex.customer.dlq
+
