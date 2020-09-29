@@ -9,3 +9,6 @@ O Rabbit possui três filas:
 
 Ao lançar uma exceção no cosumo da fila normal, a mensagem é enviada para a fila de retentativas, após 3 tentivas de validar a mensagem no consumer, ela é encaminhada para a fila de DLQ.
 Toda arquitetura foi desenvolvida abstraindo ao maximo o codigo para o contexto de gerenciamento do Spring.
+
+Comando para rodar container com Rabbitmq:
+'''docker run -d --name rabbitmq -p 5672:5672 -p 15672:15672 --hostname rabbitmq-master rabbitmq:3-management'''
